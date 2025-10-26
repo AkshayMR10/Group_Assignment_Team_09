@@ -41,4 +41,12 @@ public class Course {
     public String toString() {
         return number + " - " + name;
     }
+
+    public String getCourseId() {
+        return number; // courseId == number
+    }
+
+    public String getCourseName() {
+        return name; // courseName == name
+    }
 }

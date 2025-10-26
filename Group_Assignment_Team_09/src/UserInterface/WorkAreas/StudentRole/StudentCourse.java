@@ -4,7 +4,9 @@
  */
 package UserInterface.WorkAreas.StudentRole;
 
+import Business.CourseSchedule.SeatAssignment;
 import Business.Profiles.StudentProfile;
+import ManageStudentModel.Course;
 import java.awt.CardLayout;
 import java.io.File;
 import java.util.ArrayList;
@@ -24,7 +26,8 @@ public StudentCourse(StudentProfile student) {
     this.student = student;
     initComponents();
     courseworkList = new ArrayList<>();
-    populateDummyData();
+
+    populateCourseworkFromStudentCourses();
     populateTable();
     addListeners();
 }
@@ -59,13 +62,23 @@ public StudentCourse(StudentProfile student) {
         public void setGrade(String grade) { this.grade = grade; }
     }
 
-    private void populateDummyData() {
-        courseworkList.add(new Coursework("INFO5100", "Assignment 1", "10/30/2025"));
-        courseworkList.add(new Coursework("INFO5200", "Assignment 1", "10/31/2025"));
-        courseworkList.add(new Coursework("INFO5300", "Assignment 1", "11/01/2025"));
-        courseworkList.add(new Coursework("INFO5400", "Assignment 1", "11/02/2025"));
-        courseworkList.add(new Coursework("INFO5500", "Assignment 1", "11/03/2025"));
+private void populateCourseworkFromStudentCourses() {
+    if (student.getCourseList() == null || student.getCourseList().isEmpty()) {
+        JOptionPane.showMessageDialog(null, "No enrolled courses found for this student.");
+        return;
     }
+
+for (SeatAssignment sa : student.getCourseList()) {
+    Business.CourseCatalog.Course c = sa.getAssociatedCourse();
+    Coursework cw = new Coursework(
+        c.getCourseId() + " - " + c.getCourseName(),
+        "Assignment 1",      // placeholder for now
+        "11/05/2025"         // placeholder date
+    );
+    courseworkList.add(cw);
+}
+
+}
 
     private void populateTable() {
         DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
