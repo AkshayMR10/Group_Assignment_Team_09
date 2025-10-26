@@ -1,5 +1,13 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package Business.Profiles;
-
+/**
+ *
+ * @author Amrin
+ */
 import Business.Person.Person;
 import Business.CourseSchedule.CourseLoad;
 import Business.CourseSchedule.SeatAssignment;
