@@ -8,7 +8,7 @@ package UserInterface.WorkAreas.AdminRole.AdministerUserAccountsWorkResp;
 import Business.Business;
 import Business.UserAccounts.UserAccount;
 import Business.UserAccounts.UserAccountDirectory;
-
+import javax.swing.JOptionPane;
 
 import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
@@ -26,7 +26,6 @@ public class ManageUserAccountsJPanel extends javax.swing.JPanel {
     Business business;
     UserAccount selecteduseraccount;
 
-
     public ManageUserAccountsJPanel(Business bz, JPanel jp) {
         CardSequencePanel = jp;
         this.business = bz;
@@ -36,34 +35,26 @@ public class ManageUserAccountsJPanel extends javax.swing.JPanel {
     }
 
     public void refreshTable() {
-
-//clear supplier table
+        // Clear supplier table
         int rc = UserAccountTable.getRowCount();
         int i;
         for (i = rc - 1; i >= 0; i--) {
             ((DefaultTableModel) UserAccountTable.getModel()).removeRow(i);
         }
 
-
-
         UserAccountDirectory uad = business.getUserAccountDirectory();
 
-       
-
         for (UserAccount ua : uad.getUserAccountList()) {
-
-            Object[] row = new Object[5];
-            row[0] = ua;
- //           row[1] = ua.getStatus(); //complete this..
- //           row[2] = ua.getLastUpdated()
- //           row[3] = 
+            Object[] row = new Object[4];
+            row[0] = ua;  // Username (toString)
+            row[1] = ua.getRole();  // Role
+            row[2] = "Active";  // Status (placeholder)
+            row[3] = java.time.LocalDate.now().toString();  // Last Activity
 
             ((DefaultTableModel) UserAccountTable.getModel()).addRow(row);
         }
-
     }
 
-    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -90,7 +81,7 @@ public class ManageUserAccountsJPanel extends javax.swing.JPanel {
             }
         });
         add(Back);
-        Back.setBounds(30, 300, 76, 32);
+        Back.setBounds(30, 390, 74, 23);
 
         Next.setText("Next >>");
         Next.addActionListener(new java.awt.event.ActionListener() {
@@ -99,7 +90,7 @@ public class ManageUserAccountsJPanel extends javax.swing.JPanel {
             }
         });
         add(Next);
-        Next.setBounds(500, 300, 80, 32);
+        Next.setBounds(1080, 390, 80, 23);
 
         jLabel1.setFont(new java.awt.Font("Dialog", 1, 14)); // NOI18N
         jLabel1.setText("User Accounts");
@@ -109,7 +100,7 @@ public class ManageUserAccountsJPanel extends javax.swing.JPanel {
         jLabel2.setFont(new java.awt.Font("Arial", 0, 24)); // NOI18N
         jLabel2.setText("Manage User Accounts");
         add(jLabel2);
-        jLabel2.setBounds(21, 20, 550, 29);
+        jLabel2.setBounds(21, 20, 550, 28);
 
         UserAccountTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -119,9 +110,17 @@ public class ManageUserAccountsJPanel extends javax.swing.JPanel {
                 {null, null, null, null}
             },
             new String [] {
-                "User Name", "Status", "Last Activity", "Last Updated"
+                "User Name", "Role", "Last Activity", "Last Updated"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         UserAccountTable.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 UserAccountTableMousePressed(evt);
@@ -130,24 +129,27 @@ public class ManageUserAccountsJPanel extends javax.swing.JPanel {
         jScrollPane1.setViewportView(UserAccountTable);
 
         add(jScrollPane1);
-        jScrollPane1.setBounds(30, 110, 550, 130);
+        jScrollPane1.setBounds(30, 110, 1130, 270);
     }// </editor-fold>//GEN-END:initComponents
 
     private void BackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BackActionPerformed
         // TODO add your handling code here:
         CardSequencePanel.remove(this);
         ((java.awt.CardLayout) CardSequencePanel.getLayout()).next(CardSequencePanel);
- //       ((java.awt.CardLayout)CardSequencePanel.getLayout()).show(CardSequencePanel, "IdentifyEventTypes");
+        //       ((java.awt.CardLayout)CardSequencePanel.getLayout()).show(CardSequencePanel, "IdentifyEventTypes");
 
     }//GEN-LAST:event_BackActionPerformed
 
     private void NextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NextActionPerformed
         // TODO add your handling code here:
-        if(selecteduseraccount==null) return;
-        AdminUserAccount mppd = new AdminUserAccount(selecteduseraccount, CardSequencePanel);
-        CardSequencePanel.add(mppd);
-        ((java.awt.CardLayout) CardSequencePanel.getLayout()).next(CardSequencePanel);
+        if (selecteduseraccount == null) {
+            JOptionPane.showMessageDialog(this, "Please select a user account from the table", "No Selection", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
+        AdminUserAccount aua = new AdminUserAccount(business, selecteduseraccount, CardSequencePanel, this);
+        CardSequencePanel.add(aua, "AdminUserAccount");
+        ((java.awt.CardLayout) CardSequencePanel.getLayout()).show(CardSequencePanel, "AdminUserAccount");
     }//GEN-LAST:event_NextActionPerformed
 
     private void UserAccountTableMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_UserAccountTableMousePressed
@@ -161,13 +163,12 @@ public class ManageUserAccountsJPanel extends javax.swing.JPanel {
         selecteduseraccount = (UserAccount) UserAccountTable.getValueAt(selectedrow, 0);
         if (selecteduseraccount == null) {
             return;
-        
-        
-            
+
+
     }//GEN-LAST:event_UserAccountTableMousePressed
-    
+
     }
-    
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton Back;
