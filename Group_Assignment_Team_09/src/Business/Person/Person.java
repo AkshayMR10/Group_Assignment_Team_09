@@ -12,6 +12,11 @@ package Business.Person;
 public class Person {
 
     String id;
+    private String universityId;    // NEW - University ID like "U00001"
+    private String name;            // NEW - Full name
+    private String email;           // NEW - Email address
+    private String phone;           // NEW - Phone number
+    private String address;
 
     public Person(String id) {
 
@@ -32,5 +37,45 @@ public class Person {
     @Override
     public String toString() {
         return getPersonId();
+    }
+
+    public String getUniversityId() {
+        return universityId;
+    }
+
+    public void setUniversityId(String universityId) {
+        this.universityId = universityId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 }
