@@ -5,99 +5,119 @@
 package UserInterface.WorkAreas.StudentRole;
 
 import Business.Profiles.StudentProfile;
-import ManageStudentModel.TranscriptRecord;
+import Business.CourseSchedule.CourseLoad;
+import Business.CourseSchedule.SeatAssignment;
 import StudentUtils.GradeUtils;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.*;
 import java.util.*;
-
 /**
  *
  * @author Amrin
  */
-public class StudentTranscript extends javax.swing.JPanel {
-    private JPanel CardSequencePanel;
-    private JTable tblTranscript;
-    private JComboBox<String> cmbTermFilter;
-    private JLabel lblTermGPA, lblOverallGPA, lblStanding;
-    private ArrayList<TranscriptRecord> transcriptList;
-    /**
-     * Creates new form StudentTranscript
-     */
+public class StudentTranscript extends JPanel {
+
     private StudentProfile student;
+    private JTable tblTranscript;
+    private JComboBox<String> cmbSemesterFilter;
+    private JTextField fieldSemesterGPA, fieldOverallGPA, fieldStanding;
+
     public StudentTranscript(StudentProfile student) {
         this.student = student;
-        this.CardSequencePanel = CardSequencePanel;
-        transcriptList = new ArrayList<>();
         initComponents();
-        populateDummyData();
-        populateTable(null);
+        populateSemesters();
+        populateTable(null); // show all semesters initially
+
+        // Listener for semester selection
+        comboterm.addActionListener(e -> {
+            String selectedSemester = (String) comboterm.getSelectedItem();
+            populateTable(selectedSemester.equals("All Semesters") ? null : selectedSemester);
+        });
     }
-private void populateTable(String termFilter) {
-    DefaultTableModel model = (DefaultTableModel) tbltrans.getModel();
-    model.setRowCount(0);
 
-    double totalQualityPointsAll = 0, totalCreditsAll = 0;
-    double totalQualityPointsTerm = 0, totalCreditsTerm = 0;
-
-    for (TranscriptRecord tr : transcriptList) {
-        double gradePoints = GradeUtils.getPoints(tr.getGrade());
-        double qualityPoints = gradePoints * tr.getCreditHours();
-
-        totalQualityPointsAll += qualityPoints;
-        totalCreditsAll += tr.getCreditHours();
-
-        if (termFilter == null || tr.getTerm().equals(termFilter)) {
-            totalQualityPointsTerm += qualityPoints;
-            totalCreditsTerm += tr.getCreditHours();
+    // Populate comboterm with semesters
+    private void populateSemesters() {
+        Set<String> semesterSet = student.getCourseLoadList().keySet();
+        comboterm.removeAllItems();
+        comboterm.addItem("All Semesters");
+        for (String semester : semesterSet) {
+            comboterm.addItem(semester);
         }
     }
 
-    double overallGPA = totalCreditsAll > 0 ? totalQualityPointsAll / totalCreditsAll : 0;
-    double termGPA = totalCreditsTerm > 0 ? totalQualityPointsTerm / totalCreditsTerm : 0;
+    // Populate the transcript table
+    private void populateTable(String semesterFilter) {
+        DefaultTableModel model = (DefaultTableModel) tbltrans.getModel();
+        model.setRowCount(0);
 
-    String standing = "Good Standing";
-    if (overallGPA < 3.0) standing = "Academic Probation";
-    else if (termGPA < 3.0) standing = "Academic Warning";
+        double totalQualityPointsAll = 0;
+        int totalCreditsAll = 0;
 
-    fieldgpa.setText(String.format("%.2f", termGPA));
-    fieldogpa.setText(String.format("%.2f", overallGPA));
-    fieldstand.setText(standing);
+        Map<String, Double> semesterQualityPoints = new HashMap<>();
+        Map<String, Integer> semesterCredits = new HashMap<>();
 
-    for (TranscriptRecord tr : transcriptList) {
-        if (termFilter == null || tr.getTerm().equals(termFilter)) {
-            model.addRow(new Object[]{
-                tr.getTerm(), tr.getCourseId(), tr.getCourseName(), tr.getGrade(),
-                String.format("%.2f", termGPA), String.format("%.2f", overallGPA), standing
-            });
+        for (CourseLoad cl : student.getCourseLoadList().values()) {
+            String semester = cl.getSemester();
+            for (SeatAssignment sa : cl.getSeatAssignments()) {
+                float grade = sa.getGrade();
+                int credits = sa.getCreditHours();
+                double qualityPoints = grade * credits;
+
+                totalQualityPointsAll += qualityPoints;
+                totalCreditsAll += credits;
+
+                semesterQualityPoints.put(semester, semesterQualityPoints.getOrDefault(semester, 0.0) + qualityPoints);
+                semesterCredits.put(semester, semesterCredits.getOrDefault(semester, 0) + credits);
+
+                if (semesterFilter == null || semester.equals(semesterFilter)) {
+                    model.addRow(new Object[]{
+                            semester,
+                            sa.getCourseId(),
+                            sa.getCourseName(),
+                            GradeUtils.getLetterGrade(grade),
+                            "", "", "" // placeholders for GPA and standing
+                    });
+                }
+            }
+        }
+
+        double overallGPA = totalCreditsAll > 0 ? totalQualityPointsAll / totalCreditsAll : 0;
+
+        // Fill Term GPA and Standing in table
+        for (int i = 0; i < model.getRowCount(); i++) {
+            String semester = (String) model.getValueAt(i, 0);
+            double termGPA = semesterCredits.get(semester) > 0
+                    ? semesterQualityPoints.get(semester) / semesterCredits.get(semester)
+                    : 0;
+            model.setValueAt(String.format("%.2f", termGPA), i, 4);
+            model.setValueAt(String.format("%.2f", overallGPA), i, 5);
+
+            String standing = "Good Standing";
+            if (overallGPA < 3.0) standing = "Academic Probation";
+            else if (termGPA < 3.0) standing = "Academic Warning";
+            model.setValueAt(standing, i, 6);
+        }
+
+        // Update bottom fields
+        if (semesterFilter != null) {
+            double termGPA = semesterCredits.get(semesterFilter) > 0
+                    ? semesterQualityPoints.get(semesterFilter) / semesterCredits.get(semesterFilter)
+                    : 0;
+            fieldgpa.setText(String.format("%.2f", termGPA));
+            fieldogpa.setText(String.format("%.2f", overallGPA));
+
+            String standing = "Good Standing";
+            if (overallGPA < 3.0) standing = "Academic Probation";
+            else if (termGPA < 3.0) standing = "Academic Warning";
+            fieldstand.setText(standing);
+        } else {
+            fieldgpa.setText("");
+            fieldogpa.setText(String.format("%.2f", overallGPA));
+            fieldstand.setText(overallGPA >= 3.0 ? "Good Standing" : "Academic Probation");
         }
     }
-}
-private void populateDummyData() {
-    transcriptList.add(new TranscriptRecord("Fall 2025", "INFO 5100", "Application Engineering and Development", "A", 4));
-    transcriptList.add(new TranscriptRecord("Fall 2025", "INFO 6205", "Program Structure & Algorithms", "B+", 4));
-    transcriptList.add(new TranscriptRecord("Spring 2026", "INFO 6105", "Data Science Engineering Methods", "A-", 3));
-    transcriptList.add(new TranscriptRecord("Spring 2026", "INFO 6150", "Web Design & UX", "B", 3));
-
-    // Add terms to combo box
-    comboterm.removeAllItems();
-    comboterm.addItem("All Terms");
-
-    Set<String> terms = new HashSet<>();
-    for (TranscriptRecord tr : transcriptList) {
-        terms.add(tr.getTerm());
-    }
-    for (String term : terms) {
-        comboterm.addItem(term);
-    }
-
-    comboterm.addActionListener(e -> {
-        String selectedTerm = (String) comboterm.getSelectedItem();
-        populateTable(selectedTerm.equals("All Terms") ? null : selectedTerm);
-    });
-}
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -109,7 +129,7 @@ private void populateDummyData() {
 
         btnback = new javax.swing.JButton();
         lbltitle = new javax.swing.JLabel();
-        lblterm = new javax.swing.JLabel();
+        lblSemester = new javax.swing.JLabel();
         comboterm = new javax.swing.JComboBox<>();
         jScrollPane1 = new javax.swing.JScrollPane();
         tbltrans = new javax.swing.JTable();
@@ -132,7 +152,7 @@ private void populateDummyData() {
         lbltitle.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         lbltitle.setText("TRANSCRIPT REVIEW");
 
-        lblterm.setText("Select Term");
+        lblSemester.setText("Select Semester");
 
         comboterm.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         comboterm.addActionListener(new java.awt.event.ActionListener() {
@@ -198,7 +218,7 @@ private void populateDummyData() {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(6, 6, 6)
-                                .addComponent(lblterm)
+                                .addComponent(lblSemester)
                                 .addGap(26, 26, 26)
                                 .addComponent(comboterm, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(layout.createSequentialGroup()
@@ -224,7 +244,7 @@ private void populateDummyData() {
                     .addComponent(lbltitle))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lblterm)
+                    .addComponent(lblSemester)
                     .addComponent(comboterm, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 210, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -268,9 +288,9 @@ private void populateDummyData() {
     private javax.swing.JTextField fieldogpa;
     private javax.swing.JTextField fieldstand;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel lblSemester;
     private javax.swing.JLabel lblaca;
     private javax.swing.JLabel lblogpa;
-    private javax.swing.JLabel lblterm;
     private javax.swing.JLabel lbltermg;
     private javax.swing.JLabel lbltitle;
     private javax.swing.JTable tbltrans;

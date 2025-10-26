@@ -39,7 +39,7 @@
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" attributes="0">
                               <EmptySpace min="6" pref="6" max="-2" attributes="0"/>
-                              <Component id="lblterm" min="-2" max="-2" attributes="0"/>
+                              <Component id="lblSemester" min="-2" max="-2" attributes="0"/>
                               <EmptySpace min="-2" pref="26" max="-2" attributes="0"/>
                               <Component id="comboterm" min="-2" max="-2" attributes="0"/>
                           </Group>
@@ -75,7 +75,7 @@
               </Group>
               <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="lblterm" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="lblSemester" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="comboterm" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace type="separate" max="-2" attributes="0"/>
@@ -114,9 +114,9 @@
         <Property name="text" type="java.lang.String" value="TRANSCRIPT REVIEW"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="lblterm">
+    <Component class="javax.swing.JLabel" name="lblSemester">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Select Term"/>
+        <Property name="text" type="java.lang.String" value="Select Semester"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JComboBox" name="comboterm">

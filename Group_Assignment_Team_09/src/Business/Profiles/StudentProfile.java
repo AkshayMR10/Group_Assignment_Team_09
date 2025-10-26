@@ -29,7 +29,6 @@ public class StudentProfile extends Profile {
     // Transcript / Course History
     private HashMap<String, CourseLoad> courseloadlist;
     private CourseLoad currentcourseload;
-
     // -------------------- Graduation & Finance Fields --------------------
     private List<Course> enrolledCourses;       // Courses added for graduation
     private double balance;                      // Tuition balance
@@ -142,4 +141,5 @@ public class StudentProfile extends Profile {
     public String toString() {
         return getPerson().getName() + " (" + program + ")";
     }
+
 }
