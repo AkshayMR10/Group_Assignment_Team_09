@@ -19,6 +19,7 @@ import javax.swing.JPanel;
  *
  * @author kal
  */
+
 public class StudentWorkAreaJPanel extends javax.swing.JPanel {
 
     javax.swing.JPanel CardSequencePanel;
@@ -31,7 +32,9 @@ public class StudentWorkAreaJPanel extends javax.swing.JPanel {
      * @param spp
      * @param clp
      */
-
+    private StudentGraduation gradPanel;
+    private StudentTranscript transcriptPanel;
+    private StudentFinance financePanel;
     public StudentWorkAreaJPanel(Business b, StudentProfile spp, JPanel clp) {
 
         business = b;
@@ -223,7 +226,10 @@ StudentManageProfile manageProfilePanel = new StudentManageProfile(student);
 
     private void btnregistrationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnregistrationActionPerformed
         // TODO add your handling code here:
-StudentRegistration studentRegister = new StudentRegistration(CardSequencePanel, student, business);
+StudentRegistration studentRegister;
+        studentRegister = new StudentRegistration(
+                CardSequencePanel,student,business, gradPanel, transcriptPanel, financePanel
+        );
 CardSequencePanel.add("StudentRegistration", studentRegister);
 
 CardLayout layout = (CardLayout) CardSequencePanel.getLayout();

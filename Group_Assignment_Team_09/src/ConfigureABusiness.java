@@ -582,7 +582,6 @@ class ConfigureABusiness {
         CourseLoad cl10 = studentprofile9.newCourseLoad("Spring 2025");
         co7.assignEmptySeat(cl10); // David enrolls in DAMG 6210
 
-
         return business;
     }
 }

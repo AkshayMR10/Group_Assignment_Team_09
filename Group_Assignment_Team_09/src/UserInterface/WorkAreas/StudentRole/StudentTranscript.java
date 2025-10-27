@@ -118,6 +118,9 @@ public class StudentTranscript extends JPanel {
             fieldstand.setText(overallGPA >= 3.0 ? "Good Standing" : "Academic Probation");
         }
     }
+    public void refreshTable() {
+    populateTable(null); // null = show all semesters
+}
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

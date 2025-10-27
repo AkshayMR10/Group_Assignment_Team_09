@@ -36,16 +36,26 @@ public class StudentRegistration extends javax.swing.JPanel {
     private StudentProfile student;
     private Business business;
 
-    public StudentRegistration(JPanel container, StudentProfile student, Business business) {
-        this.student = student;
-        this.business = business;
-        this.container = container;
-        initComponents();
-        setupTables();
-        loadAllCourses(business);
-        populateComboBoxes();
-        populateOfferTable(allCourses);
-    }
+private StudentGraduation gradPanel;
+private StudentTranscript transcriptPanel;
+private StudentFinance financePanel;
+
+public StudentRegistration(JPanel container, StudentProfile student, Business business,
+                           StudentGraduation gradPanel,
+                           StudentTranscript transcriptPanel,
+                           StudentFinance financePanel) {
+    this.student = student;
+    this.business = business;
+    this.container = container;
+    this.gradPanel = gradPanel;
+    this.transcriptPanel = transcriptPanel;
+    this.financePanel = financePanel;
+    initComponents();
+    setupTables();
+    loadAllCourses(business);
+    populateComboBoxes();
+    populateOfferTable(allCourses);
+}
 
     private void setupTables() {
         offeringModel = (DefaultTableModel) Courseofferingtable.getModel();
@@ -410,10 +420,23 @@ private void populateComboBoxes() {
     totalCredits += credit;
     fieldcredits.setText(String.valueOf(totalCredits));
 
+    // --------------------- Update finance ---------------------
+    
+    // Assuming $1000 per credit
+    double fee = credit * 1000;
+    student.addCourseFee(courseId, fee);
+
     // Refresh registration table
     populateRegisterTable();
 
-    JOptionPane.showMessageDialog(this, "Enrolled successfully in " + courseName + "!");
+    // Refresh finance panel
+    if (financePanel != null) financePanel.refreshTable();
+
+    // Refresh graduation and transcript tables
+    if (gradPanel != null) gradPanel.refreshTable();
+    if (transcriptPanel != null) transcriptPanel.refreshTable();
+
+    JOptionPane.showMessageDialog(this, "Enrolled successfully in " + courseName + "!\nFee added: $" + String.format("%.2f", fee));
     }//GEN-LAST:event_btnEnrollActionPerformed
 
     private void btndropActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btndropActionPerformed
@@ -448,6 +471,9 @@ private void populateComboBoxes() {
 
         JOptionPane.showMessageDialog(this, "Dropped course: " + toDrop.getCourseName());
     }
+    if (gradPanel != null) gradPanel.refreshTable();
+if (transcriptPanel != null) transcriptPanel.refreshTable();
+if (financePanel != null) financePanel.refreshTable();
     }//GEN-LAST:event_btndropActionPerformed
 
     private void btnsearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnsearchActionPerformed

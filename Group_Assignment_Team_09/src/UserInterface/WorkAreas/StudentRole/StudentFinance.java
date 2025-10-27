@@ -38,14 +38,11 @@ private void populateTable() {
     DefaultTableModel model = (DefaultTableModel) studentfinancetable.getModel();
     model.setRowCount(0);
 
-    // Iterate through all course loads (semesters)
     for (CourseLoad cl : student.getCourseLoadList().values()) {
         String semester = cl.getSemester();
-
         for (SeatAssignment sa : cl.getSeatAssignments()) {
             Business.CourseCatalog.Course c = sa.getCourseOffer().getSubjectCourse();
-
-            // Determine payment status: Billed if balance > 0, else Paid
+            double fee = student.getCourseFee(c.getCourseId()); // get actual fee
             String status = (student.getBalance() > 0) ? "Billed" : "Paid";
 
             model.addRow(new Object[]{
@@ -53,12 +50,12 @@ private void populateTable() {
                 c.getCourseName(),
                 c.getCredits(),
                 semester,
+                String.format("$%.2f", fee),
                 status
             });
         }
     }
 }
-
     private void updateBalanceField() {
         fieldbalance.setText(String.format("%.2f", student.getBalance()));
     }
@@ -94,7 +91,10 @@ private void populateTable() {
             JOptionPane.showMessageDialog(this, sb.toString(), "Payment History", JOptionPane.INFORMATION_MESSAGE);
         }
     }
-
+public void refreshTable() {
+    populateTable();
+    updateBalanceField();
+}
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -132,11 +132,11 @@ private void populateTable() {
 
             },
             new String [] {
-                "Course ID", "Course Name", "Credit", "Status"
+                "Course ID", "Course Name", "Credit", "Status", "Fee"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false
+                false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
