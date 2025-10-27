@@ -4,9 +4,9 @@
 
 **Team & Roles**
 - **Akshay Madavalappil Ramesh (NUID: 002560270)** — Administrator
-- **Sriya Kamarsu** — Faculty
+- **Venkata Sriya Kamarsu (NUID: 002560433)** — Faculty
 - **Amrin Bushra Taj (NUID: 002565908)** — Student
-- **Anushika** — Registrar
+- **Anushika Balamurugan (NUID: )** — Registrar
 
 This document is the **single source of truth** for how to set up, run, and evaluate Team 09’s Digital University system. It consolidates the Administrator, Faculty, Student, and Registrar roles into a coherent, professional README suitable for submission.
 
