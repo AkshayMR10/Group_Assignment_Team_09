@@ -8,18 +8,25 @@ package Business.CourseSchedule;
  *
  * @author aksha
  */
+import Business.Profiles.StudentProfile;
 import java.util.ArrayList;
 
 public class CourseLoad {
 
     String semester;
     ArrayList<SeatAssignment> seatassignments;
+    private StudentProfile studentProfile;
 
     public CourseLoad(String s) {
         seatassignments = new ArrayList();
         semester = s;
     }
 
+     public CourseLoad(String s, StudentProfile sp) {
+        seatassignments = new ArrayList();
+        semester = s;
+        studentProfile = sp;
+    }
     public SeatAssignment newSeatAssignment(CourseOffer co) {
         Seat seat = co.getEmptySeat(); // seat linked to courseoffer
         if (seat == null) {
@@ -49,5 +56,13 @@ public class CourseLoad {
 
     public String getSemester() {
         return semester;
+    }
+     public StudentProfile getStudentProfile() {
+        return studentProfile;
+    }
+
+    
+    public void setStudentProfile(StudentProfile sp) {
+        this.studentProfile = sp;
     }
 }
