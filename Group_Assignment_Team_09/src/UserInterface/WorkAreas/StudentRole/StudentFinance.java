@@ -26,6 +26,8 @@ public class StudentFinance extends javax.swing.JPanel {
         initComponents();
         populateTable();
         updateBalanceField();
+
+        // Button actions
         btnpaytuition.addActionListener(e -> payTuitionAction());
         btnviewhistory.addActionListener(e -> viewHistoryAction());
     }
@@ -36,8 +38,14 @@ public class StudentFinance extends javax.swing.JPanel {
 
         List<Course> courses = student.getEnrolledCourses();
         for (Course c : courses) {
+            // Determine status: Billed if balance > 0, else Paid
             String status = (student.getBalance() > 0) ? "Billed" : "Paid";
-            model.addRow(new Object[]{c.getCourseId(), c.getCourseName(), c.getCredits(), status});
+            model.addRow(new Object[]{
+                c.getCourseId(),
+                c.getCourseName(),
+                c.getCredits(),
+                status
+            });
         }
     }
 
@@ -52,12 +60,12 @@ public class StudentFinance extends javax.swing.JPanel {
         }
 
         double amount = student.getBalance();
-        int confirm = JOptionPane.showConfirmDialog(this, 
-                "Do you want to pay $" + amount + " tuition?", 
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Do you want to pay $" + String.format("%.2f", amount) + " tuition?",
                 "Confirm Payment", JOptionPane.YES_NO_OPTION);
 
         if (confirm == JOptionPane.YES_OPTION) {
-            student.payTuition(amount);
+            student.payTuition(amount); // Deduct balance and record history
             JOptionPane.showMessageDialog(this, "Payment Successful!");
             updateBalanceField();
             populateTable();
