@@ -1,5 +1,6 @@
 # Faculty Role — README
-
+Name: Venkata Sriya Kamarsu
+NUID: 002560433
 This README explains how to **run, navigate, and use** the *Faculty* workflow in the **Digital University** project. It focuses only on the faculty-facing screens and the data hooks they rely on.
 
 ---
