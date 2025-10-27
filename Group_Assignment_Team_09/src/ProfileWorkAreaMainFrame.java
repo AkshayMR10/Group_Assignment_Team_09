@@ -8,6 +8,7 @@ import Business.Business;
 import Business.Profiles.EmployeeProfile;
 import Business.Profiles.FacultyProfile;
 import Business.Profiles.Profile;
+import Business.Profiles.RegistrarProfile;
 import Business.Profiles.StudentProfile;
 
 import Business.UserAccounts.UserAccount;
@@ -15,6 +16,7 @@ import Business.UserAccounts.UserAccountDirectory;
 
 import UserInterface.WorkAreas.AdminRole.AdminRoleWorkAreaJPanel;
 import UserInterface.WorkAreas.FacultyRole.FacultyWorkAreaJPanel;
+import UserInterface.WorkAreas.RegistrarRole.RegistrarRoleWorkAreaJPanel;
 import UserInterface.WorkAreas.StudentRole.StudentWorkAreaJPanel;
 import javax.swing.JPanel;
 
@@ -170,6 +172,15 @@ public class ProfileWorkAreaMainFrame extends javax.swing.JFrame {
             CardSequencePanel.add("faculty", facultyworkarea);
             ((java.awt.CardLayout) CardSequencePanel.getLayout()).next(CardSequencePanel);
 
+                    }
+        
+        if (profile instanceof RegistrarProfile) {
+            RegistrarProfile rp = (RegistrarProfile) profile;
+            RegistrarRoleWorkAreaJPanel registrarWorkAreaPanel = 
+                new RegistrarRoleWorkAreaJPanel(business, rp, useraccount, CardSequencePanel);
+            CardSequencePanel.removeAll();
+            CardSequencePanel.add("registrar", registrarWorkAreaPanel);
+            ((java.awt.CardLayout) CardSequencePanel.getLayout()).next(CardSequencePanel);
         }
 
 

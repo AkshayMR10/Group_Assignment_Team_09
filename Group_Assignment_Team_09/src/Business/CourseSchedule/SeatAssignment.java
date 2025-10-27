@@ -5,6 +5,7 @@
 package Business.CourseSchedule;
 
 import Business.CourseCatalog.Course;
+import Business.Profiles.StudentProfile;
 
 /**
  * @author Sriya
@@ -67,6 +68,12 @@ public class SeatAssignment {
     public CourseOffer getCourseOffer() {
         return seat.getCourseOffer();
     }
+    
+    
+    
+    public StudentProfile getStudentProfile() {
+    return courseload.getStudentProfile();
+}
 
     /**
      * Get the actual Course object from this seat assignment.

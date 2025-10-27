@@ -46,4 +46,7 @@ public class Seat {
     public SeatAssignment getSeatassignment() {
         return seatassignment;
     }
+    public void setSeatAssignment(SeatAssignment sa) {
+        this.seatassignment = sa;
+    }
 }

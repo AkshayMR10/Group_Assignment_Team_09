@@ -462,7 +462,7 @@ class ConfigureABusiness {
         UserAccount ua22 = uadirectory.newUserAccount(facultyprofile9, "patricia", "****");
 
         // Registrar account
-        UserAccount ua23 = uadirectory.newUserAccount(registrarprofile0, "susan", "****");
+        UserAccount ua23 = uadirectory.newUserAccount(registrarprofile0, "anu", "****");
 
         //Additional accounts
         UserAccount ua24 = uadirectory.newUserAccount(studentprofile10, "chris", "****");
