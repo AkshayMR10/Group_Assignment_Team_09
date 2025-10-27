@@ -215,11 +215,12 @@ private void setFieldsEditable(boolean editable) {
 
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
         // TODO add your handling code here:
-    fieldname.setText(student.getPerson().getName());
-    fieldemail.setText(student.getPerson().getEmail());
-    fieldphone.setText(student.getPerson().getPhone());
-    fieldaddress.setText(student.getPerson().getAddress());
-    fieldprogram.setText(student.getProgram());
+    // Update the StudentProfile with the values from the text fields
+    student.getPerson().setName(fieldname.getText().trim());
+    student.getPerson().setEmail(fieldemail.getText().trim());
+    student.getPerson().setPhone(fieldphone.getText().trim());
+    student.getPerson().setAddress(fieldaddress.getText().trim());
+    student.setProgram(fieldprogram.getText().trim());
     
     // After saving, lock fields again
     setFieldsEditable(false);
