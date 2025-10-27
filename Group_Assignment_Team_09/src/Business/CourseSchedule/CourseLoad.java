@@ -27,6 +27,11 @@ public class CourseLoad {
         semester = s;
         studentProfile = sp;
     }
+     
+     public StudentProfile getStudentProfile() {
+        return studentProfile;
+    }
+     
     public SeatAssignment newSeatAssignment(CourseOffer co) {
         Seat seat = co.getEmptySeat(); // seat linked to courseoffer
         if (seat == null) {
@@ -57,9 +62,7 @@ public class CourseLoad {
     public String getSemester() {
         return semester;
     }
-     public StudentProfile getStudentProfile() {
-        return studentProfile;
-    }
+     
 
     
     public void setStudentProfile(StudentProfile sp) {

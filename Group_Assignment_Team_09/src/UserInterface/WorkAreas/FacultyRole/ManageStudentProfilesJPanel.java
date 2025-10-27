@@ -82,19 +82,19 @@ public class ManageStudentProfilesJPanel extends javax.swing.JPanel {
         }
 
         CourseOffer co = myOffers.get(idx);
-        if (co == null || co.getSeatlist() == null) {
+        if (co == null || co.getSeatList() == null) {
             return;
         }
 
         // Iterate through all seats
-        for (Seat seat : co.getSeatlist()) {
+        for (Seat seat : co.getSeatList()) {
             // Only process occupied seats
             if (!seat.isOccupied()) {
                 continue;
             }
 
             // Get seat assignment
-            SeatAssignment sa = seat.getSeatassignment();
+            SeatAssignment sa = seat.getSeatAssignment();
             if (sa == null) {
                 continue;
             }
@@ -336,12 +336,12 @@ public class ManageStudentProfilesJPanel extends javax.swing.JPanel {
         StudentProfile selectedStudent = null;
         SeatAssignment selectedSeatAssignment = null;
 
-        for (Seat seat : selectedCourse.getSeatlist()) {
+        for (Seat seat : selectedCourse.getSeatList()) {
             if (!seat.isOccupied()) {
                 continue;
             }
 
-            SeatAssignment sa = seat.getSeatassignment();
+            SeatAssignment sa = seat.getSeatAssignment();
             if (sa == null) {
                 continue;
             }

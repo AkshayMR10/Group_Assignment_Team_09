@@ -70,7 +70,7 @@ public class ManageCoursesJPanel extends javax.swing.JPanel {
             if (faculty != null && faculty == myFaculty) {
                 String id = co.getCourseId();
                 String name = co.getCourseTitle();
-                int capacity = co.getSeatlist().size();
+                int capacity = co.getSeatList().size();
                 int enrolled = co.getEnrolledCount();
 
                 model.addRow(new Object[]{id, name, co.getFacultyProfile().getPerson().getName(), capacity, enrolled});

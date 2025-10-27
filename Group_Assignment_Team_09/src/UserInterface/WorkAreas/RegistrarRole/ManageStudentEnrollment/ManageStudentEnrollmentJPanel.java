@@ -11,6 +11,7 @@ import Business.CourseSchedule.CourseSchedule;
 import Business.CourseSchedule.Seat;
 import Business.CourseSchedule.SeatAssignment;
 import Business.Profiles.StudentProfile;
+import java.util.ArrayList;
 import java.util.HashMap;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -69,32 +70,49 @@ public class ManageStudentEnrollmentJPanel extends javax.swing.JPanel {
         }
 
          private void refreshTable() {
-            DefaultTableModel model = (DefaultTableModel) tblEnrollments.getModel();
-            model.setRowCount(0);
+    DefaultTableModel model = (DefaultTableModel) tblEnrollments.getModel();
+    model.setRowCount(0);
 
-            HashMap<String, CourseSchedule> schedules = business.getMasterCourseCatalog();
-            for (String semester : schedules.keySet()) {
-                CourseSchedule cs = schedules.get(semester);
-                for (CourseOffer co : cs.getSchedule()) {
-                    if (co.getSeatList().isEmpty()) continue;
+    if (business.getMasterCourseCatalog() == null) {
+        System.out.println("⚠️ MasterCourseCatalog is null!");
+        return;
+    }
 
-                    for (Seat seat : co.getSeatList()) {
-                        if (!seat.isOccupied() || seat.getSeatAssignment() == null) continue;
+    // Loop through each semester in MasterCourseCatalog
+    for (String semester : business.getMasterCourseCatalog().keySet()) {
+        CourseSchedule cs = business.getMasterCourseCatalog().get(semester);
+        if (cs == null) continue;
 
-                        StudentProfile sp = seat.getSeatAssignment().getStudentProfile();
-                        if (sp == null) continue;
+        ArrayList<CourseOffer> offers = cs.getSchedule();
+        if (offers == null || offers.isEmpty()) continue;
 
-                        Object[] row = new Object[5];
-                        row[0] = sp.getPerson().getPersonId();
-                        row[1] = sp.getPerson().getName();
-                        row[2] = semester;
-                        row[3] = co.getCourseNumber();
-                        row[4] = co.getSubjectCourse().getName();
-                        model.addRow(row);
-                    }
-                }
+        for (CourseOffer co : offers) {
+            if (co == null || co.getSeatList() == null) continue;
+
+            for (Seat s : co.getSeatList()) {
+                if (s == null) continue;
+                SeatAssignment sa = s.getSeatAssignment();
+                if (sa == null) continue;
+
+                StudentProfile sp = sa.getStudentProfile();
+                if (sp == null || sp.getPerson() == null) continue;
+
+                // Add row
+                Object[] row = new Object[5];
+                row[0] = sp.getPerson().getPersonId();
+                row[1] = sp.getPerson().getName();
+                row[2] = semester;
+                row[3] = co.getCourseNumber();
+                row[4] = co.getCourseTitle();
+                model.addRow(row);
             }
         }
+    }
+
+    System.out.println("✅ Enrollment table refreshed. Rows: " + model.getRowCount());
+}
+
+
 
 
     
@@ -326,12 +344,13 @@ public class ManageStudentEnrollmentJPanel extends javax.swing.JPanel {
     private void btnEnrollActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEnrollActionPerformed
         // TODO add your handling code here:
        // Get selected student, semester, and course
-       String studentName = cmbSelectStudents.getSelectedItem().toString().trim();
+       // Get selected student, semester, and course
+        String studentName = cmbSelectStudents.getSelectedItem().toString().trim();
         String semester = cmbSelectSemester.getSelectedItem().toString().trim();
         String courseSelection = cmbSelectCourse.getSelectedItem().toString();
 
-        if (studentName.equals("-- Select Student --") || semester.equals("-- Select Semester --") ||
-                courseSelection.equals("-- Select Course --")) {
+        if (studentName.equals("-- Select Student --") || semester.equals("-- Select Semester --")
+                || courseSelection.equals("-- Select Course --")) {
             JOptionPane.showMessageDialog(this, "Please select all fields properly.");
             return;
         }
@@ -362,7 +381,7 @@ public class ManageStudentEnrollmentJPanel extends javax.swing.JPanel {
         // 3️⃣ find the specific course in that semester
         CourseOffer targetCourse = null;
         for (CourseOffer co : cs.getSchedule()) {
-            if (co.getCourseNumber().equals(courseId)) {
+            if (co.getCourseNumber().equalsIgnoreCase(courseId)) {
                 targetCourse = co;
                 break;
             }
@@ -380,14 +399,19 @@ public class ManageStudentEnrollmentJPanel extends javax.swing.JPanel {
             selectedStudent.getCourseLoadList().put(semester, courseLoad);
         }
 
-        // 5️⃣ assign a seat
+        // 5️⃣ assign a seat and link automatically
         SeatAssignment sa = targetCourse.assignEmptySeat(courseLoad);
         if (sa == null) {
             JOptionPane.showMessageDialog(this, "No empty seats available in this course!");
             return;
         }
 
-        JOptionPane.showMessageDialog(this, "Student enrolled successfully!");
+        // ✅ Ensure seat assignment has the student reference (handled in constructor)
+        // so we do NOT call sa.setStudentProfile() here.
+
+        JOptionPane.showMessageDialog(this,
+                "Student " + selectedStudent.getPerson().getName()
+                        + " enrolled successfully in " + targetCourse.getCourseNumber() + "!");
         refreshTable();
         resetFields();
 

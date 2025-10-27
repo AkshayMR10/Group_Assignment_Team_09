@@ -248,13 +248,13 @@ public class PerformanceReportsJPanel extends javax.swing.JPanel {
         double totalGpa = 0.0;
 
         // Process each enrolled student
-        for (Seat seat : selectedCourse.getSeatlist()) {
+        for (Seat seat : selectedCourse.getSeatList()) {
             if (!seat.isOccupied()) {
                 continue;
             }
 
             // ✅ FIX: Use correct method name
-            SeatAssignment sa = seat.getSeatassignment();  // Lowercase 'a'
+            SeatAssignment sa = seat.getSeatAssignment();  // Lowercase 'a'
             if (sa == null) {
                 continue;
             }

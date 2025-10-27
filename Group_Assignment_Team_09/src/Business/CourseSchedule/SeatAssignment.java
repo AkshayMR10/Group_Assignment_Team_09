@@ -16,12 +16,14 @@ public class SeatAssignment {
     Seat seat;
     boolean like; // true = liked course, false = disliked
     CourseLoad courseload;
+    StudentProfile studentProfile;
 
     // -------------------- Constructor --------------------
     public SeatAssignment(CourseLoad cl, Seat s) {
         this.seat = s;
         this.courseload = cl;
-        this.grade = 0f;
+        this.studentProfile = (cl != null) ? cl.getStudentProfile() : null;
+//        this.grade = 0f;
     }
 
     // -------------------- Getters & Setters --------------------
@@ -72,8 +74,11 @@ public class SeatAssignment {
     
     
     public StudentProfile getStudentProfile() {
-    return courseload.getStudentProfile();
-}
+        // defensive check — if the field is null, derive from courseload
+        if (studentProfile != null) return studentProfile;
+        if (courseload != null) return courseload.getStudentProfile();
+        return null;
+    }
 
     /**
      * Get the actual Course object from this seat assignment.
@@ -102,6 +107,8 @@ public class SeatAssignment {
     public float getCourseStudentScore() {
         return getCreditHours() * grade;
     }
+    
+        
 
     // -------------------- Utility --------------------
     @Override

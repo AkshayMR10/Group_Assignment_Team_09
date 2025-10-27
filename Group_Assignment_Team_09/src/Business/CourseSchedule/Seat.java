@@ -12,17 +12,18 @@ public class Seat {
     CourseOffer courseoffer;
 
     public Seat(CourseOffer co, int n) {
-        courseoffer = co;
-        number = n;
-        occupied = false;
+        this.courseoffer = co;
+        this.number = n;
+        this.occupied = false;
     }
 
     public Boolean isOccupied() {
-        return occupied;
+        return seatassignment != null;
     }
 
-    public void setOccupied(boolean occ) {
+     public void setOccupied(boolean occ) {
         this.occupied = occ;
+        if (!occ) this.seatassignment = null;
     }
 
     public SeatAssignment getSeatAssignment() {
@@ -42,11 +43,19 @@ public class Seat {
     public int getCourseCredits() {
         return courseoffer.getCreditHours();
     }
-
-    public SeatAssignment getSeatassignment() {
-        return seatassignment;
+    
+    public int getSeatNumber() {
+        return number;
     }
+
+//    public SeatAssignment getSeatassignment() {
+//        return seatassignment;
+//    }
     public void setSeatAssignment(SeatAssignment sa) {
         this.seatassignment = sa;
+        this.occupied = (sa != null);
     }
+    
+    
+    
 }
