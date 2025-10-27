@@ -165,7 +165,7 @@ public class ProfileWorkAreaMainFrame extends javax.swing.JFrame {
         }
 
         if (profile instanceof FacultyProfile) {
-            facultyworkarea = new FacultyWorkAreaJPanel(business, CardSequencePanel, useraccount);
+            facultyworkarea = new FacultyWorkAreaJPanel(business, CardSequencePanel, useraccount); //new method
             CardSequencePanel.removeAll();
             CardSequencePanel.add("faculty", facultyworkarea);
             ((java.awt.CardLayout) CardSequencePanel.getLayout()).next(CardSequencePanel);
