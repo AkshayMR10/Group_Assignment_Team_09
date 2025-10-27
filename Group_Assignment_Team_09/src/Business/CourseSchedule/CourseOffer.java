@@ -91,4 +91,12 @@ public class CourseOffer {
         }
         return count;
     }
+
+    public String getCourseId() {
+        return course.getCourseNumber();
+    }
+
+    public String getCourseTitle() {                   // course name/title
+        return course.getName();
+    }
 }
