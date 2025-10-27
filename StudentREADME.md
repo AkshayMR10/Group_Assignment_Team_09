@@ -71,7 +71,9 @@ if (profile instanceof StudentProfile) {
     CardSequencePanel.add("student", studentPanel);
     ((CardLayout) CardSequencePanel.getLayout()).next(CardSequencePanel);
 }
-6) StudentWorkAreaJPanel (Container)
+---
+
+## 6) StudentWorkAreaJPanel (Container)
 
 Buttons: Coursework, Course Registration, Graduation Audit, Transcript, Financials, My Profile.
 
@@ -84,7 +86,9 @@ cardLayout.show(cardPanel, CARD_COURSEWORK / CARD_REGISTRATION / CARD_AUDIT / CA
 
 Do not call CardSequencePanel from inside student sub-panels.
 Keep navigation limited to cardPanel only.
-7) Data Model Hooks
+---
+
+## 7) Data Model Hooks
 
 Business → getCourseSchedule(semester) → returns List<CourseOffer>
 
@@ -108,7 +112,9 @@ StudentProfile → getPerson() (name/email/universityId)
 
 CourseLoad → maintains current semester courses and credits
 
-8) Panel Behaviors
+---
+
+## 8) Panel Behaviors
 A) CourseworkJPanel
 
 Displays currently enrolled courses with:
@@ -191,7 +197,9 @@ Allows editing email, phone, and password (name and ID are read-only).
 
 Validates input before saving back to model.
 
-9) Common Pitfalls & Fixes
+---
+
+## 9) Common Pitfalls & Fixes
 
 Duplicate results in Course Search
 → Ensure conditionals in search distinguish by selected search type (ID/Name/Instructor).
@@ -202,7 +210,9 @@ Credit Overload Error
 Navigation not updating
 → Ensure all sub-panels are added to cardPanel before calling cardLayout.show().
 
-10) Quick Test Script
+---
+
+## 10) Quick Test Script
 
 Login as a Student.
 
