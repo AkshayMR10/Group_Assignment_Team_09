@@ -1,15 +1,21 @@
 Digital University System – Student Use Case
 Project Information
 
-Project Title: Access-Controlled Digital University System with Role-Based Access
+Project Title: Access-Controlled Digital University
+ System with Role-Based Access
+
 Assignment: Group Assignment 9 – INFO 5100
+
 Institution: Northeastern University
+
 Semester: Fall 2025
 
 Team Member – Student Implementation
 
 Name: Amrin Bushra Taj
+
 NUID: 002565908
+
 Role: Student Use Case Developer
 
 Responsibilities:
