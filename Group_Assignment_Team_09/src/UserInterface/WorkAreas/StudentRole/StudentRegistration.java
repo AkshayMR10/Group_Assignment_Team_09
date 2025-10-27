@@ -82,14 +82,14 @@ private void loadAllCourses(Business business) {
 }
 
 private void populateComboBoxes() {
-    // Populate semesters
     combosem.removeAllItems();
-    allCourses.stream()
-            .map(CourseCatalog::getSemester)
-            .distinct()
-            .forEach(combosem::addItem);
+    combosem.addItem("All"); // option to show all courses
 
-    // Populate search options
+    // Add only Fall and Spring options
+    combosem.addItem("Fall");
+    combosem.addItem("Spring");
+
+    // Populate the search type combo box
     combocourseid.removeAllItems();
     combocourseid.addItem("Course ID");
     combocourseid.addItem("Course Name");
@@ -123,49 +123,38 @@ private void populateComboBoxes() {
         }
     }
 
-    private void searchCourses() {
-    String semester = (String) combosem.getSelectedItem();
-    String searchBy = (String) combocourseid.getSelectedItem();
+private void searchCourses() {
+    String semester = ((String) combosem.getSelectedItem()).trim();
+    String searchBy = ((String) combocourseid.getSelectedItem()).trim().toLowerCase();
     String searchText = fieldsearch.getText().trim().toLowerCase();
 
-    if (semester == null || semester.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Please select a semester.");
-        return;
-    }
-
-    if (searchBy == null || searchBy.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Please select a search option (Course ID, Name, Instructor).");
-        return;
-    }
-
-    // Filter courses
     List<CourseCatalog> filtered = allCourses.stream()
-            .filter(c -> c.getSemester() != null && c.getSemester().trim().equalsIgnoreCase(semester.trim()))
+            .filter(c -> {
+                if (semester.equalsIgnoreCase("All")) return true;
+                if (semester.equalsIgnoreCase("Fall")) return c.getSemester() != null && c.getSemester().toLowerCase().contains("fall");
+                if (semester.equalsIgnoreCase("Spring")) return c.getSemester() != null && c.getSemester().toLowerCase().contains("spring");
+                return true;
+            })
             .filter(c -> {
                 if (searchText.isEmpty()) return true;
-
-                switch (searchBy.trim()) {
-                    case "Course ID":
-                        return c.getCourseId() != null &&
-                               c.getCourseId().trim().toLowerCase().contains(searchText);
-                    case "Course Name":
-                        return c.getCourseName() != null &&
-                               c.getCourseName().trim().toLowerCase().contains(searchText);
-                    case "Instructor":
-                        return c.getInstructor() != null &&
-                               c.getInstructor().trim().toLowerCase().contains(searchText);
+                switch (searchBy) {
+                    case "course id":
+                        return c.getCourseId() != null && c.getCourseId().toLowerCase().contains(searchText);
+                    case "course name":
+                        return c.getCourseName() != null && c.getCourseName().toLowerCase().contains(searchText);
+                    case "instructor":
+                        return c.getInstructor() != null && c.getInstructor().toLowerCase().contains(searchText);
                     default:
-                        return false;
+                        return true;
                 }
             })
             .collect(Collectors.toList());
 
+    populateOfferTable(filtered);
+
     if (filtered.isEmpty()) {
         JOptionPane.showMessageDialog(this, "No courses found for your search criteria.");
     }
-
-    // Refresh table
-    populateOfferTable(filtered);
 }
     /**
      * This method is called from within the constructor to initialize the form.
