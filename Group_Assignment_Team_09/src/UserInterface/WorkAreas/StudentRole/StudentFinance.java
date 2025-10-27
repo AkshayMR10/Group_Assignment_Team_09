@@ -4,6 +4,8 @@
  */
 package UserInterface.WorkAreas.StudentRole;
 
+import Business.CourseSchedule.CourseLoad;
+import Business.CourseSchedule.SeatAssignment;
 import Business.Profiles.StudentProfile;
 import ManageStudentModel.Course;
 import java.awt.CardLayout;
@@ -32,22 +34,30 @@ public class StudentFinance extends javax.swing.JPanel {
         btnviewhistory.addActionListener(e -> viewHistoryAction());
     }
 
-    private void populateTable() {
-        DefaultTableModel model = (DefaultTableModel) studentfinancetable.getModel();
-        model.setRowCount(0);
+private void populateTable() {
+    DefaultTableModel model = (DefaultTableModel) studentfinancetable.getModel();
+    model.setRowCount(0);
 
-        List<Course> courses = student.getEnrolledCourses();
-        for (Course c : courses) {
-            // Determine status: Billed if balance > 0, else Paid
+    // Iterate through all course loads (semesters)
+    for (CourseLoad cl : student.getCourseLoadList().values()) {
+        String semester = cl.getSemester();
+
+        for (SeatAssignment sa : cl.getSeatAssignments()) {
+            Business.CourseCatalog.Course c = sa.getCourseOffer().getSubjectCourse();
+
+            // Determine payment status: Billed if balance > 0, else Paid
             String status = (student.getBalance() > 0) ? "Billed" : "Paid";
+
             model.addRow(new Object[]{
                 c.getCourseId(),
                 c.getCourseName(),
                 c.getCredits(),
+                semester,
                 status
             });
         }
     }
+}
 
     private void updateBalanceField() {
         fieldbalance.setText(String.format("%.2f", student.getBalance()));
