@@ -4,6 +4,8 @@
  */
 package UserInterface.WorkAreas.StudentRole;
 
+import Business.CourseSchedule.CourseLoad;
+import Business.CourseSchedule.SeatAssignment;
 import Business.Profiles.StudentProfile;
 import ManageStudentModel.Course;
 import ManageStudentModel.Student;
@@ -16,25 +18,41 @@ import javax.swing.table.DefaultTableModel;
  * @author Amrin
  */
 public class StudentGraduation extends javax.swing.JPanel {
-private StudentProfile student;
-    /**
-     * Creates new form StudentGraduation
-     */
-public StudentGraduation(StudentProfile student) {
-    this.student = student;
-    initComponents();
-    populateTable();
-}
-private void populateTable() {
-    DefaultTableModel model = (DefaultTableModel) tablegrad.getModel();
-    model.setRowCount(0); // clear table first
+    private StudentProfile student;
+    private int totalCredits = 0; // class-level variable
 
-    for (Course c : student.getEnrolledCourses()) {
-        model.addRow(new Object[]{c.getCourseId(), c.getCourseName(), c.getCredits(), "Semester X"});
+    public StudentGraduation(StudentProfile student) {
+        this.student = student;
+        initComponents();
+        populateTable();
     }
 
-    fieldcredits.setText(String.valueOf(student.getTotalCredits()));
-}
+    private void populateTable() {
+        DefaultTableModel model = (DefaultTableModel) tablegrad.getModel();
+        model.setRowCount(0);
+
+        totalCredits = 0; // reset before counting
+
+        for (CourseLoad cl : student.getCourseLoadList().values()) {
+            String semester = cl.getSemester();
+            for (SeatAssignment sa : cl.getSeatAssignments()) {
+                Business.CourseCatalog.Course c = sa.getCourseOffer().getSubjectCourse();
+                int credits = c.getCredits();
+                totalCredits += credits;
+
+                model.addRow(new Object[]{
+                    c.getCourseId(),
+                    c.getCourseName(),
+                    credits,
+                    semester,
+                });
+            }
+        }
+
+        // Set total credits in the text field
+        fieldcredits.setText(String.valueOf(totalCredits));
+    }
+
 private void checkEligibility() {
     if (student.isEligibleToGraduate()) {
         JOptionPane.showMessageDialog(this, "✅ Eligible to Graduate!", "Graduation Status", JOptionPane.INFORMATION_MESSAGE);
@@ -112,6 +130,9 @@ private void checkEligibility() {
             }
         });
         jScrollPane2.setViewportView(tablegrad);
+        if (tablegrad.getColumnModel().getColumnCount() > 0) {
+            tablegrad.getColumnModel().getColumn(3).setHeaderValue("Semester");
+        }
 
         btneligible.setText("Check Eligibility");
         btneligible.addActionListener(new java.awt.event.ActionListener() {

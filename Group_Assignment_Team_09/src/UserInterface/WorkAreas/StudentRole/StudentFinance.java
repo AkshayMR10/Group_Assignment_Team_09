@@ -4,6 +4,8 @@
  */
 package UserInterface.WorkAreas.StudentRole;
 
+import Business.CourseSchedule.CourseLoad;
+import Business.CourseSchedule.SeatAssignment;
 import Business.Profiles.StudentProfile;
 import ManageStudentModel.Course;
 import java.awt.CardLayout;
@@ -26,20 +28,36 @@ public class StudentFinance extends javax.swing.JPanel {
         initComponents();
         populateTable();
         updateBalanceField();
+
+        // Button actions
         btnpaytuition.addActionListener(e -> payTuitionAction());
         btnviewhistory.addActionListener(e -> viewHistoryAction());
     }
 
-    private void populateTable() {
-        DefaultTableModel model = (DefaultTableModel) studentfinancetable.getModel();
-        model.setRowCount(0);
+private void populateTable() {
+    DefaultTableModel model = (DefaultTableModel) studentfinancetable.getModel();
+    model.setRowCount(0);
 
-        List<Course> courses = student.getEnrolledCourses();
-        for (Course c : courses) {
+    // Iterate through all course loads (semesters)
+    for (CourseLoad cl : student.getCourseLoadList().values()) {
+        String semester = cl.getSemester();
+
+        for (SeatAssignment sa : cl.getSeatAssignments()) {
+            Business.CourseCatalog.Course c = sa.getCourseOffer().getSubjectCourse();
+
+            // Determine payment status: Billed if balance > 0, else Paid
             String status = (student.getBalance() > 0) ? "Billed" : "Paid";
-            model.addRow(new Object[]{c.getCourseId(), c.getCourseName(), c.getCredits(), status});
+
+            model.addRow(new Object[]{
+                c.getCourseId(),
+                c.getCourseName(),
+                c.getCredits(),
+                semester,
+                status
+            });
         }
     }
+}
 
     private void updateBalanceField() {
         fieldbalance.setText(String.format("%.2f", student.getBalance()));
@@ -52,12 +70,12 @@ public class StudentFinance extends javax.swing.JPanel {
         }
 
         double amount = student.getBalance();
-        int confirm = JOptionPane.showConfirmDialog(this, 
-                "Do you want to pay $" + amount + " tuition?", 
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Do you want to pay $" + String.format("%.2f", amount) + " tuition?",
                 "Confirm Payment", JOptionPane.YES_NO_OPTION);
 
         if (confirm == JOptionPane.YES_OPTION) {
-            student.payTuition(amount);
+            student.payTuition(amount); // Deduct balance and record history
             JOptionPane.showMessageDialog(this, "Payment Successful!");
             updateBalanceField();
             populateTable();

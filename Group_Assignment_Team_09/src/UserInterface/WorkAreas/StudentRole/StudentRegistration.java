@@ -4,6 +4,12 @@
  */
 package UserInterface.WorkAreas.StudentRole;
 
+import Business.Business;
+import Business.CourseSchedule.CourseLoad;
+import Business.CourseSchedule.CourseOffer;
+import Business.CourseSchedule.CourseSchedule;
+import Business.CourseSchedule.Seat;
+import Business.CourseSchedule.SeatAssignment;
 import Business.Profiles.StudentProfile;
 import ManageStudentModel.CourseCatalog;
 import java.awt.CardLayout;
@@ -26,40 +32,59 @@ public class StudentRegistration extends javax.swing.JPanel {
     private List<CourseCatalog> registeredCourses = new ArrayList<>();
     private int totalCredits = 0;
 
-    JPanel container;  // to navigate back
-private StudentProfile student;
+    private JPanel container;
+    private StudentProfile student;
+    private Business business;
 
-    public StudentRegistration(StudentProfile student) {
+    public StudentRegistration(JPanel container, StudentProfile student, Business business) {
         this.student = student;
-        initComponents();
+        this.business = business;
         this.container = container;
+        initComponents();
         setupTables();
-        loadCourses();
-        populateComboBoxes(); 
+        loadAllCourses(business);
+        populateComboBoxes();
+        populateOfferTable(allCourses);
     }
-private void populateComboBoxes() {
-    combosem.removeAllItems();
-    allCourses.stream()
-        .map(CourseCatalog::getSemester)
-        .distinct()
-        .forEach(combosem::addItem);
 
-    combocourseid.removeAllItems();
-    combocourseid.addItem("Course ID");
-    combocourseid.addItem("Course Name");
-    combocourseid.addItem("Instructor");
-}
     private void setupTables() {
         offeringModel = (DefaultTableModel) Courseofferingtable.getModel();
         registeredModel = (DefaultTableModel) Courseregistertable.getModel();
     }
 
-    private void loadCourses() {
-        allCourses.add(new CourseCatalog("INFO 5100", "App Engineering", "Prof. Smith", 4, "Fall 2025"));
-        allCourses.add(new CourseCatalog("INFO 6150", "Web Design", "Dr. Adams", 3, "Fall 2025"));
-        allCourses.add(new CourseCatalog("INFO 6205", "Data Structures", "Dr. Lee", 4, "Spring 2026"));
-        populateOfferTable(allCourses);
+private void loadAllCourses(Business business) {
+    allCourses.clear();
+    for (CourseSchedule schedule : business.getMasterCourseCatalog().values()) {
+        for (CourseOffer offer : schedule.getSchedule()) {
+            String instructor = offer.getFacultyProfile() != null
+                                ? offer.getFacultyProfile().getPerson().getName()
+                                : "TBD";
+
+            allCourses.add(new CourseCatalog(
+                offer.getSubjectCourse().getCourseNumber(),
+                offer.getSubjectCourse().getCourseName(),
+                instructor,
+                offer.getCreditHours(),
+                schedule.getSemester() // make sure CourseSchedule has semester
+            ));
+        }
     }
+}
+
+private void populateComboBoxes() {
+    // Populate semesters
+    combosem.removeAllItems();
+    allCourses.stream()
+            .map(CourseCatalog::getSemester)
+            .distinct()
+            .forEach(combosem::addItem);
+
+    // Populate search options
+    combocourseid.removeAllItems();
+    combocourseid.addItem("Course ID");
+    combocourseid.addItem("Course Name");
+    combocourseid.addItem("Instructor");
+}
 
     private void populateOfferTable(List<CourseCatalog> list) {
         offeringModel.setRowCount(0);
@@ -88,44 +113,6 @@ private void populateComboBoxes() {
         }
     }
 
-    private void enrollCourse() {
-        int selectedRow = Courseofferingtable.getSelectedRow();
-        if (selectedRow < 0) {
-            JOptionPane.showMessageDialog(this, "Please select a course to enroll.");
-            return;
-        }
-
-        String id = (String) offeringModel.getValueAt(selectedRow, 0);
-        String name = (String) offeringModel.getValueAt(selectedRow, 1);
-        String instructor = (String) offeringModel.getValueAt(selectedRow, 2);
-        int credits = (int) offeringModel.getValueAt(selectedRow, 3);
-        String semester = (String) offeringModel.getValueAt(selectedRow, 4);
-
-        if (totalCredits + credits > 8) {
-            JOptionPane.showMessageDialog(this, "You cannot register more than 8 credits per semester.");
-            return;
-        }
-
-        CourseCatalog newCourse = new CourseCatalog(id, name, instructor, credits, semester);
-        registeredCourses.add(newCourse);
-        totalCredits += credits;
-        fieldcredits.setText(String.valueOf(totalCredits));
-        populateRegisterTable();
-    }
-
-    private void dropCourse() {
-        int selectedRow = Courseregistertable.getSelectedRow();
-        if (selectedRow < 0) {
-            JOptionPane.showMessageDialog(this, "Please select a course to drop.");
-            return;
-        }
-
-        int credits = (int) registeredModel.getValueAt(selectedRow, 3);
-        totalCredits -= credits;
-        fieldcredits.setText(String.valueOf(totalCredits));
-        registeredCourses.remove(selectedRow);
-        populateRegisterTable();
-    }
     private void searchCourses() {
     String semester = (String) combosem.getSelectedItem();
     String searchBy = (String) combocourseid.getSelectedItem();
@@ -135,34 +122,39 @@ private void populateComboBoxes() {
         JOptionPane.showMessageDialog(this, "Please select a semester.");
         return;
     }
+
     if (searchBy == null || searchBy.isEmpty()) {
         JOptionPane.showMessageDialog(this, "Please select a search option (Course ID, Name, Instructor).");
         return;
     }
 
-    // Filter courses by semester first
+    // Filter courses
     List<CourseCatalog> filtered = allCourses.stream()
-        .filter(c -> c.getSemester().equalsIgnoreCase(semester))
-        .filter(c -> {
-            if (searchText.isEmpty()) return true; // show all for semester if no text entered
+            .filter(c -> c.getSemester() != null && c.getSemester().trim().equalsIgnoreCase(semester.trim()))
+            .filter(c -> {
+                if (searchText.isEmpty()) return true;
 
-            switch (searchBy) {
-                case "Course ID":
-                    return c.getCourseId().toLowerCase().contains(searchText);
-                case "Course Name":
-                    return c.getCourseName().toLowerCase().contains(searchText);
-                case "Instructor":
-                    return c.getInstructor().toLowerCase().contains(searchText);
-                default:
-                    return false;
-            }
-        })
-        .collect(Collectors.toList());
+                switch (searchBy.trim()) {
+                    case "Course ID":
+                        return c.getCourseId() != null &&
+                               c.getCourseId().trim().toLowerCase().contains(searchText);
+                    case "Course Name":
+                        return c.getCourseName() != null &&
+                               c.getCourseName().trim().toLowerCase().contains(searchText);
+                    case "Instructor":
+                        return c.getInstructor() != null &&
+                               c.getInstructor().trim().toLowerCase().contains(searchText);
+                    default:
+                        return false;
+                }
+            })
+            .collect(Collectors.toList());
 
     if (filtered.isEmpty()) {
         JOptionPane.showMessageDialog(this, "No courses found for your search criteria.");
     }
 
+    // Refresh table
     populateOfferTable(filtered);
 }
     /**
@@ -387,12 +379,75 @@ private void populateComboBoxes() {
 
     private void btnEnrollActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEnrollActionPerformed
         // TODO add your handling code here:
-        enrollCourse();
+    int selectedRow = Courseofferingtable.getSelectedRow();
+    if (selectedRow < 0) {
+        JOptionPane.showMessageDialog(this, "Please select a course to enroll.");
+        return;
+    }
+
+    // Get course details from the table
+    String courseId = Courseofferingtable.getValueAt(selectedRow, 0).toString();
+    String courseName = Courseofferingtable.getValueAt(selectedRow, 1).toString();
+    String instructor = Courseofferingtable.getValueAt(selectedRow, 2).toString();
+    int credit = Integer.parseInt(Courseofferingtable.getValueAt(selectedRow, 3).toString());
+    String semester = Courseofferingtable.getValueAt(selectedRow, 4).toString();
+
+    // Check if already enrolled
+    boolean alreadyEnrolled = registeredCourses.stream()
+            .anyMatch(c -> c.getCourseId().equalsIgnoreCase(courseId) 
+                        && c.getSemester().equalsIgnoreCase(semester));
+
+    if (alreadyEnrolled) {
+        JOptionPane.showMessageDialog(this, "You are already enrolled in this course.");
+        return;
+    }
+
+    // Add course to registered list
+    CourseCatalog newCourse = new CourseCatalog(courseId, courseName, instructor, credit, semester);
+    registeredCourses.add(newCourse);
+
+    // Update total credits
+    totalCredits += credit;
+    fieldcredits.setText(String.valueOf(totalCredits));
+
+    // Refresh registration table
+    populateRegisterTable();
+
+    JOptionPane.showMessageDialog(this, "Enrolled successfully in " + courseName + "!");
     }//GEN-LAST:event_btnEnrollActionPerformed
 
     private void btndropActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btndropActionPerformed
         // TODO add your handling code here:
-        dropCourse();
+        int selectedRow = Courseregistertable.getSelectedRow();
+    if (selectedRow < 0) {
+        JOptionPane.showMessageDialog(this, "Please select a course to drop.");
+        return;
+    }
+
+    // Get course details from the table
+    String courseId = Courseregistertable.getValueAt(selectedRow, 0).toString();
+    String semester = Courseregistertable.getValueAt(selectedRow, 4).toString();
+
+    // Find the course in registeredCourses
+    CourseCatalog toDrop = null;
+    for (CourseCatalog c : registeredCourses) {
+        if (c.getCourseId().equalsIgnoreCase(courseId) 
+            && c.getSemester().equalsIgnoreCase(semester)) {
+            toDrop = c;
+            break;
+        }
+    }
+
+    if (toDrop != null) {
+        registeredCourses.remove(toDrop);
+        totalCredits -= toDrop.getCreditHours();
+        fieldcredits.setText(String.valueOf(totalCredits));
+
+        // Refresh registration table
+        populateRegisterTable();
+
+        JOptionPane.showMessageDialog(this, "Dropped course: " + toDrop.getCourseName());
+    }
     }//GEN-LAST:event_btndropActionPerformed
 
     private void btnsearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnsearchActionPerformed

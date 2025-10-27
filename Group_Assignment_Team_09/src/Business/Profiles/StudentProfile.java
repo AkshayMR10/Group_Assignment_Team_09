@@ -141,5 +141,4 @@ public class StudentProfile extends Profile {
     public String toString() {
         return getPerson().getName() + " (" + program + ")";
     }
-
 }
