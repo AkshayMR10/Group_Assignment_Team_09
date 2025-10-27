@@ -194,10 +194,4 @@ cardLayout.show(cardPanel, CARD_COURSES / CARD_STUDENTS / CARD_PROFILE / CARD_RE
 
 ---
 
-## 11) Extension Ideas
 
-- Persist syllabus (path/bytes) on `CourseOffer`.
-- Add `enrollmentOpen` flag to `CourseOffer` and guard changes.
-- Transcript dialog (history per student).
-- Bar chart for distribution (JFreeChart or custom).
-- Stronger validation and error UX.
