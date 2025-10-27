@@ -64,15 +64,7 @@ Password: ****
 > Only the **main frame** manipulates the global `CardSequencePanel`.  
 > The Student area uses its **own internal** `cardPanel` for sub-navigation.
 
-```java
-if (profile instanceof StudentProfile) {
-    StudentWorkAreaJPanel studentPanel = new StudentWorkAreaJPanel(business, useraccount);
-    CardSequencePanel.removeAll();
-    CardSequencePanel.add("student", studentPanel);
-    ((CardLayout) CardSequencePanel.getLayout()).next(CardSequencePanel);
-}
 ---
-
 ## 6) StudentWorkAreaJPanel (Container)
 
 Buttons: Coursework, Course Registration, Graduation Audit, Transcript, Financials, My Profile.
