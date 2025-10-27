@@ -4,15 +4,11 @@
  */
 package Business.CourseSchedule;
 
-/**
- *
- * @author aksha
- */
 public class Seat {
 
     Boolean occupied;
     int number;
-    SeatAssignment seatassignment; //links back to studentprofile
+    SeatAssignment seatassignment; // links back to student profile
     CourseOffer courseoffer;
 
     public Seat(CourseOffer co, int n) {
@@ -25,8 +21,16 @@ public class Seat {
         return occupied;
     }
 
+    public void setOccupied(boolean occ) {
+        this.occupied = occ;
+    }
+
+    public SeatAssignment getSeatAssignment() {
+        return seatassignment;
+    }
+
     public SeatAssignment newSeatAssignment(CourseLoad cl) {
-        seatassignment = new SeatAssignment(cl, this); //links seatassignment to seat
+        seatassignment = new SeatAssignment(cl, this); // links seat assignment to seat
         occupied = true;
         return seatassignment;
     }

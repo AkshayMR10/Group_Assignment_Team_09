@@ -223,11 +223,11 @@ StudentManageProfile manageProfilePanel = new StudentManageProfile(student);
 
     private void btnregistrationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnregistrationActionPerformed
         // TODO add your handling code here:
-    StudentRegistration studentRegister = new StudentRegistration(student);
-    CardSequencePanel.add("StudentRegistration", studentRegister);
-    
-    CardLayout layout = (CardLayout) CardSequencePanel.getLayout();
-    layout.show(CardSequencePanel, "StudentRegistration");
+StudentRegistration studentRegister = new StudentRegistration(CardSequencePanel, student, business);
+CardSequencePanel.add("StudentRegistration", studentRegister);
+
+CardLayout layout = (CardLayout) CardSequencePanel.getLayout();
+layout.show(CardSequencePanel, "StudentRegistration");
 }//GEN-LAST:event_btnregistrationActionPerformed
 
     private void btntranscriptActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btntranscriptActionPerformed
